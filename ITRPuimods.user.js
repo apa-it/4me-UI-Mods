@@ -40,8 +40,9 @@
 
     // Grey-out lines containing "Waiting..." Records.
     $("tr.item.table-row").has("span:contains('Waiting')").css("color","Gainsboro");
-    // And the German version.
-    $("tr.item.table-row").has("span:contains('Warten')").css("color","Gainsboro");
+    $("tr.item.table-row").has("span:contains('Warten')").css("color","Gainsboro"); // German
+    $("tr.item.table-row").has("span:contains('Wachtend')").css("color","Gainsboro"); // Dutch
+
     // TODO Tickets are also "Waiting for Customer" when the current User is the customer. Tickets should not be greyed out then.
 
 
