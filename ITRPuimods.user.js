@@ -57,6 +57,10 @@
     var currentUser = $("div.avatar").attr("alt");
     $("td.cell-assignment:contains('" + currentUser + "')").closest('tr').find("td").css("font-weight","bold");
 
+    // Highlight lines containing Top impact incidents
+    $("tr.item.table-row").has("div.icon-impact-top").css({"color":"red", "background-color" : "MistyRose"});
+
+
     // Highlight all Record Identifiers contained in a list.
     // TODO Currently we don't differentiate problems, requests and tasks here. Fix this.
     if (false) {
