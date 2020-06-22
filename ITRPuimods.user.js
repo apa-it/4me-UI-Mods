@@ -57,8 +57,6 @@
     var currentUser = $("div.avatar").attr("alt");
     $("td.cell-assignment:contains('" + currentUser + "')").closest('tr').find("td").css("font-weight","bold");
 
-
-
     // Highlight all Record Identifiers contained in a list.
     // TODO Currently we don't differentiate problems, requests and tasks here. Fix this.
     if (false) {
@@ -103,5 +101,14 @@
         // This call is for internal comments that are immediately visible after the DOM is loaded.
         FormatInternalComments();
 
+    }
+
+    // Hotkeys
+    if (true) {
+      $(document).bind('keypress', 'e', function(){ $("span.icon-edit").click(); });
+
+      $(document).keyup(function(e){
+          if(e.keyCode === 27) { $("div.btn.cancel").click(); } // Binding escape like above doesn't work.
+          });
     }
 })();

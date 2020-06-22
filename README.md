@@ -17,6 +17,13 @@ When your 4me inbox contains many entries it can be difficult to identify those 
 |---|---|
 | ![](InboxDefault.PNG) | ![](InboxModded.PNG) |
 
+### Hotkeys
+Some UI buttons have been mapped to keys.
+
+|Key|Action|
+|---|---|
+|e|Edit Record|
+|Esc|Cancel Editing|
 
 ### Internal comments
 Internal comments are great for adding information to requests that should not be visible to customers - like technical details.
