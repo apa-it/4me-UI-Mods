@@ -1,10 +1,13 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.1
+// @version      0.2
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome.
 //               Use at your own risk.
 // @author       Thomas Volpini
 // @grant        none
+//
+// @updateURL    https://github.com/apa-it/4me-UI-Mods/raw/master/ITRPuimods.user.js
+// @downloadURL  https://github.com/apa-it/4me-UI-Mods/raw/master/ITRPuimods.user.js
 //
 // @include https://*.itrp.at
 // @include https://*.itrp.at
@@ -38,19 +41,18 @@
 
     var $ = window.$; // Prevent warning by Tampermonkey editor.
 
-    // Grey-out lines containing "Waiting..." Records.
-    $("tr.item.table-row").has("span.waiting-until").css("color","Gainsboro");
+    if(true) {
+        // Grey-out lines containing "Waiting..." Records.
+        $("tr.item.table-row").has("span.waiting-until").css("color","Gainsboro");
 
-    $("tr.item.table-row").has("span.to-do-status").filter(
-      function() { return new RegExp(
-        "Waiting|Warten|Wachtend|En Attente|Esperando|Aguardando|Aspettando"
-        ).test($(this).text());
-      }
-    ).css("color","Gainsboro");
-
-
-
-    // TODO Tickets are also "Waiting for Customer" when the current User is the customer. Tickets should not be greyed out then.
+        $("tr.item.table-row").has("span.to-do-status").filter(
+          function() { return new RegExp(
+            "Waiting|Warten|Wachtend|En Attente|Esperando|Aguardando|Aspettando"
+            ).test($(this).text());
+          }
+        ).css("color","Gainsboro");
+        // TODO Tickets are also "Waiting for Customer" when the current User is the customer. Tickets should not be greyed out then.
+    }
 
 
     // Print lines bold where the current user is the assignee
