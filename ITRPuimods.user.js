@@ -110,7 +110,7 @@
     }
 
     // Hotkeys
-    if (true) {
+    if (false) {
       $(document).bind('keypress', 'e', function(){ $("span.icon-edit").click(); });
 
       $(document).keyup(function(e){
