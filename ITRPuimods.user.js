@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.2
+// @version      0.4
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome.
 //               Use at your own risk.
 // @author       Thomas Volpini
@@ -60,7 +60,7 @@
     $("td.cell-assignment:contains('" + currentUser + "')").closest('tr').find("td").css("font-weight","bold");
 
     // Highlight lines containing Top impact incidents
-    $("tr.item.table-row").has("div.icon-impact-top").css({"color":"red", "background-color" : "MistyRose"});
+    $("tr.item.table-row").has("div.icon-impact-top").css({"color":"red", "background-color" : "rgba(255,0,0, 0.08"});
 
 
     // Highlight all Record Identifiers contained in a list.
@@ -110,11 +110,16 @@
     }
 
     // Hotkeys
-    if (false) {
-      $(document).bind('keypress', 'e', function(){ $("span.icon-edit").click(); });
+    if (true) {
 
-      $(document).keyup(function(e){
+        $(document).bind('keypress', 'e', function() {
+            if($(".modal_panel").length > 0) return; // Don't click the edit button when modal panels are visible.
+
+            $("span.icon-edit").click();
+        });
+
+        $(document).keyup(function(e){
           if(e.keyCode === 27) { $("div.btn.cancel").click(); } // Binding escape like above doesn't work.
-          });
+        });
     }
 })();
