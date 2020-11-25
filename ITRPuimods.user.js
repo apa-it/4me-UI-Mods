@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.4
+// @version      0.5
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome.
 //               Use at your own risk.
 // @author       Thomas Volpini
@@ -122,4 +122,21 @@
           if(e.keyCode === 27) { $("div.btn.cancel").click(); } // Binding escape like above doesn't work.
         });
     }
+
+    // Self Service
+    if (true) {
+        // Opening multiple Requests is currently difficult in Self Service because Requests
+        // cannot be Ctrl-clicked to open them in a new tab. This fixes the issue by adding Ctrl-clickable links.
+        $("li.list-item[id*='request_']").each ( function() {
+            $(this).find("div.lane-actions").append("<br><a href=\"" + $(this).attr("href") + "\">Ctrl-clickable Link</a>" )
+        } );
+
+
+        // Have a second save button at the bottom. Useful for Requests with more than three Notes.
+        var saveButton = $("button#save");
+        var newSaveButton = saveButton.clone().appendTo("form.edit_req");
+        newSaveButton.click(function() { saveButton.click(); });
+    }
+
 })();
+// vim: ts=4 expandtab
