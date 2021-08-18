@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.5
+// @version      0.6
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome.
 //               Use at your own risk.
 // @author       Thomas Volpini
@@ -43,9 +43,9 @@
 
     if(true) {
         // Grey-out lines containing "Waiting..." Records.
-        $("tr.item.table-row").has("span.waiting-until").css("color","Gainsboro");
+        $("div.grid-row").has("span.waiting-until").css("color","Gainsboro");
 
-        $("tr.item.table-row").has("span.to-do-status").filter(
+        $("div.grid-row").has("span.to-do-status").filter(
           function() { return new RegExp(
             "Waiting|Warten|Wachtend|En Attente|Esperando|Aguardando|Aspettando"
             ).test($(this).text());
@@ -60,7 +60,7 @@
     $("td.cell-assignment:contains('" + currentUser + "')").closest('tr').find("td").css("font-weight","bold");
 
     // Highlight lines containing Top impact incidents
-    $("tr.item.table-row").has("div.icon-impact-top").css({"color":"red", "background-color" : "rgba(255,0,0, 0.08"});
+    $("div.grid-row").has("div.icon-impact-top").css({"color":"red", "background-color" : "rgba(255,0,0, 0.08"});
 
 
     // Highlight all Record Identifiers contained in a list.
