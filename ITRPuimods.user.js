@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.6
+// @version      0.7
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome.
 //               Use at your own risk.
 // @author       Thomas Volpini
@@ -71,7 +71,6 @@
     }
 
 
-
     // Gray background for internal comments.
     // This makes it easier to see if a record didn't get a customer-visible comment for some time.
     if (true) {
@@ -119,7 +118,13 @@
         });
 
         $(document).keyup(function(e){
-          if(e.keyCode === 27) { $("div.btn.cancel").click(); } // Binding escape like above doesn't work.
+          if(e.keyCode === 27) { // Escape
+              if ($("#active_save_changes_confirm").length) { // Is the 'your changes will be lost' popup visible?
+                  $("#active_save_changes_confirm").find("#save_changes_cancel").click(); // Click the 'cancel' button in the 'your changes will be lost' popup.
+              } else {
+                  $("div.btn.cancel").click(); // Cancel editing.
+              }
+          }
         });
     }
 
