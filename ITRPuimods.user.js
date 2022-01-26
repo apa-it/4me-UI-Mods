@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.7
+// @version      0.8
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome.
 //               Use at your own risk.
 // @author       Thomas Volpini
@@ -70,7 +70,6 @@
         $("span.record-identifier").filter(function() { return (highlightRecords.includes( parseInt( $(this).text() ))) }).css("color", "green");
     }
 
-
     // Gray background for internal comments.
     // This makes it easier to see if a record didn't get a customer-visible comment for some time.
     if (true) {
@@ -111,12 +110,24 @@
     // Hotkeys
     if (true) {
 
+        // When the 'e' key is pressed, click the 'Edit' button.
         $(document).bind('keypress', 'e', function() {
             if($(".modal_panel").length > 0) return; // Don't click the edit button when modal panels are visible.
 
             $("span.icon-edit").click();
         });
 
+        // When the 'g' key is pressed, click the 'Down' button to scroll to the bottom of the Request.
+        $(document).bind('keypress', 'g', function() {
+            $("i.scroll-button-down").click();
+        });
+
+        // When the 't' key is pressed, click the 'Up' button to scroll to the top of the Request.
+        $(document).bind('keypress', 't', function() {
+            $("i.scroll-button-up").click();
+        });
+
+        // When the Escape key is pressed, cancel editing.
         $(document).keyup(function(e){
           if(e.keyCode === 27) { // Escape
               if ($("#active_save_changes_confirm").length) { // Is the 'your changes will be lost' popup visible?

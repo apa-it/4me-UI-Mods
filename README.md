@@ -23,6 +23,8 @@ Some UI buttons have been mapped to keys.
 |Key|Action|
 |---|---|
 |e|Edit Record|
+|g|Scroll to the bottom of the current Record|
+|t|Scroll to the top of the current Record|
 |Esc|Cancel Editing|
 
 ### Internal comments
