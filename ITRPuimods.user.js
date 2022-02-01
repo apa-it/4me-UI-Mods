@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.8
+// @version      0.9
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome.
 //               Use at your own risk.
 // @author       Thomas Volpini
@@ -117,14 +117,39 @@
             $("span.icon-edit").click();
         });
 
+        function inputFocused() {
+            console.log("inputFocused");
+            if (   $(document.activeElement).is("input")
+                || $(document.activeElement).hasClass("public-DraftEditor-content")
+                || $(document.activeElement).hasClass("ProseMirror")
+                || $(document.activeElement).is('.suggest, .txt')
+                || $(document.activeElement).is("select")
+                )
+        {
+                console.log("activeEle");
+                return true;
+            } else {
+                console.log("no activeele");
+
+                return false;
+            }
+        }
+
         // When the 'g' key is pressed, click the 'Down' button to scroll to the bottom of the Request.
         $(document).bind('keypress', 'g', function() {
-            $("i.scroll-button-down").click();
+            // Don't do anything if the user is typing in an input element.
+            console.log("g pressed");
+            if (!inputFocused()) {
+                $("i.scroll-button-down").click();
+            }
         });
 
         // When the 't' key is pressed, click the 'Up' button to scroll to the top of the Request.
         $(document).bind('keypress', 't', function() {
-            $("i.scroll-button-up").click();
+            // Don't do anything if the user is typing in an input element.
+            if (!inputFocused()) {
+                $("i.scroll-button-up").click();
+            }
         });
 
         // When the Escape key is pressed, cancel editing.
