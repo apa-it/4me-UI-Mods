@@ -1,36 +1,25 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.9
-// @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome.
-//               Use at your own risk.
+// @version      0.10
+// @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome. Use at your own risk.
 // @author       Thomas Volpini
 // @grant        none
 //
 // @updateURL    https://github.com/apa-it/4me-UI-Mods/raw/master/ITRPuimods.user.js
 // @downloadURL  https://github.com/apa-it/4me-UI-Mods/raw/master/ITRPuimods.user.js
 //
-// @include https://*.itrp.at
-// @include https://*.itrp.at
 // @match   https://*.itrp.at/*
 // @match   https://*.itrp.at/*
 //
-// @include https://*.itrp-qa.at
-// @include https://*.itrp-qa.at
 // @match   https://*.itrp-qa.at/*
 // @match   https://*.itrp-qa.at/*
 //
-// @include https://*.itrp.com
-// @include https://*.itrp.com
 // @match   https://*.itrp.com/*
 // @match   https://*.itrp.com/*
 //
-// @include https://*.4me.com
-// @include https://*.4me.com
 // @match   https://*.4me.com/*
 // @match   https://*.4me.com/*
 //
-// @include https://*.4me-demo.com
-// @include https://*.4me-demo.com
 // @match   https://*.4me-demo.com/*
 // @match   https://*.4me-demo.com/*
 //
@@ -43,15 +32,13 @@
 
     if(true) {
         // Grey-out lines containing "Waiting..." Records.
-        $("div.grid-row").has("span.waiting-until").css("color","Gainsboro");
-
-        $("div.grid-row").has("span.to-do-status").filter(
-          function() { return new RegExp(
-            "Waiting|Warten|Wachtend|En Attente|Esperando|Aguardando|Aspettando"
-            ).test($(this).text());
+        $("div.grid-row").has("div.cell-status").filter(
+          function() {
+              var reg_w = /Waiting|Warten|Wachtend|En Attente|Esperando|Aguardando|Aspettando/;
+              var reg_wfy = /Waiting for You/;
+              return reg_w.test($(this).text()) && !reg_wfy.test($(this).text());
           }
         ).css("color","Gainsboro");
-        // TODO Tickets are also "Waiting for Customer" when the current User is the customer. Tickets should not be greyed out then.
     }
 
 
