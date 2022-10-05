@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.10
+// @version      0.11
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome. Use at your own risk.
 // @author       Thomas Volpini
 // @grant        none
@@ -79,7 +79,7 @@
         // Sometimes comments only become visible after the DOM is loaded, e.g. when
         // the user clicks a Request in the Request list and the Request is shown in the detail view on the right.
         $("#details-container").on('DOMSubtreeModified', function() {
-            console.log("Details modified");
+            // console.log("Details modified");
 
             if (ListenForDetailsModification) {
                 ListenForDetailsModification = false; // prevent recursion
@@ -93,6 +93,12 @@
         FormatInternalComments();
 
     }
+	
+	
+	// Add resize handles to code boxes
+	if (true) {
+		$("code").closest("div").css("overflow", "auto").css("resize", "both")
+	}
 
     // Hotkeys
     if (true) {
