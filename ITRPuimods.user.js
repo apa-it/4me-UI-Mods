@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.11
+// @version      0.12
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome. Use at your own risk.
 // @author       Thomas Volpini
 // @grant        none
@@ -29,6 +29,35 @@
     'use strict';
 
     var $ = window.$; // Prevent warning by Tampermonkey editor.
+
+
+    // Sometimes elements in the Detail Area only become visible after the DOM is loaded, e.g. when
+    // the user clicks a Request in the Request list and the Request is shown in the detail view on the right.
+    // All of the functions in this array will be called when the Details Area gets new content.
+    var call_upon_details_change = [];
+
+    // Upon changes in the Detail area, call every function in the call_upon_details_change array.
+    if (true) {
+        // Handle changes in details area
+		const targetNode = document.getElementById('details_area');
+
+		// Options for the observer (which mutations to observe)
+		const config = { attributes: false, childList: true, subtree: true };
+
+		// Callback function to execute when mutations are observed
+		const callback = (mutationList, observer) => {
+            for (var i=0; i<call_upon_details_change.length; i++) {
+                call_upon_details_change[i]();
+            }
+        };
+
+		// Create an observer instance linked to the callback function
+		const observer = new MutationObserver(callback);
+
+		// Start observing the target node for configured mutations
+		observer.observe(targetNode, config);
+    }
+
 
     if(true) {
         // Grey-out lines containing "Waiting..." Records.
@@ -73,32 +102,30 @@
                      });
         };
 
+        call_upon_details_change.push(FormatInternalComments);
 
-        var ListenForDetailsModification = true;
-
-        // Sometimes comments only become visible after the DOM is loaded, e.g. when
-        // the user clicks a Request in the Request list and the Request is shown in the detail view on the right.
-        $("#details-container").on('DOMSubtreeModified', function() {
-            // console.log("Details modified");
-
-            if (ListenForDetailsModification) {
-                ListenForDetailsModification = false; // prevent recursion
-
-                FormatInternalComments();
-                ListenForDetailsModification = true;
-            }
-        });
-
+        // Once upon load.
         // This call is for internal comments that are immediately visible after the DOM is loaded.
         FormatInternalComments();
 
     }
-	
-	
+
+
+
 	// Add resize handles to code boxes
 	if (true) {
-		$("code").closest("div").css("overflow", "auto").css("resize", "both")
+        function AddCodeResizeHandles() {
+            $("code").closest("div").css("overflow", "auto").css("resize", "both");
+        }
+
+        call_upon_details_change.push(AddCodeResizeHandles);
+
+        // Once upon load.
+        AddCodeResizeHandles();
 	}
+
+
+
 
     // Hotkeys
     if (true) {
