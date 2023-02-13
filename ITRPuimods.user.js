@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.12
+// @version      0.13
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome. Use at your own risk.
 // @author       Thomas Volpini
 // @grant        none
@@ -78,6 +78,8 @@
     // Highlight lines containing Top impact incidents
     $("div.grid-row").has("div.icon-impact-top").css({"color":"red", "background-color" : "rgba(255,0,0, 0.08"});
 
+    // The new 4me UI has lots of whitespace in tables. Reduce this by 30%
+	$(".grid-container").css("--cell-height", "25px");
 
     // Highlight all Record Identifiers contained in a list.
     // TODO Currently we don't differentiate problems, requests and tasks here. Fix this.
@@ -125,6 +127,17 @@
 	}
 
 
+	// Open links in same tab instead of new one. Very experimental, doesn't cover all cases.
+	if (false) {
+        function RemoveTargetBlank() {
+            $('a[target="_blank"]').removeAttr('target');
+        }
+
+        call_upon_modal_change.push(RemoveTargetBlank);
+
+        // Once upon load.
+        RemoveTargetBlank();
+	}
 
 
     // Hotkeys
