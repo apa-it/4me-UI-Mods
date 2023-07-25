@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.13
+// @version      0.14
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome. Use at your own risk.
 // @author       Thomas Volpini
 // @grant        none
@@ -93,7 +93,7 @@
     if (true) {
         function FormatInternalComments() {
             // Adding and checking apaIt_InternalComment is to prevent loops.
-            $("div.icon-locked-note").closest("li").find("div.note-content").not(".apaIt_InternalComment")
+            $("div.icon-locked").closest("li").find("div.note-content").not(".apaIt_InternalComment")
                 .addClass("apaIt_InternalComment")
                 .css({"background-color" : "LightGray",
                       "color": "black",
@@ -127,7 +127,7 @@
 	}
 
 
-	// Open links in same tab instead of new one. Very experimental, doesn't cover all cases.
+	// Open links in same tab instead of new one.
 	if (false) {
         function RemoveTargetBlank() {
             $('a[target="_blank"]').removeAttr('target');
