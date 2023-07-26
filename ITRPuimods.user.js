@@ -1,13 +1,9 @@
 // ==UserScript==
-// @name         ITRPuimods
-// @version      0.14
-// @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome. Use at your own risk.
-// @author       Thomas Volpini
-// @grant        none
-//
-// @updateURL    https://github.com/apa-it/4me-UI-Mods/raw/master/ITRPuimods.user.js
-// @downloadURL  https://github.com/apa-it/4me-UI-Mods/raw/master/ITRPuimods.user.js
-//
+// @name         My Script with GUI
+// @namespace    http://your-namespace.com
+// @version      0.1
+// @description  A script with a simple GUI for customization.
+// @author       Your Name
 // @match   https://*.itrp.at/*
 // @match   https://*.itrp.at/*
 //
@@ -23,10 +19,202 @@
 // @match   https://*.4me-demo.com/*
 // @match   https://*.4me-demo.com/*
 //
+// @grant        GM_addStyle
+// @grant        GM_registerMenuCommand
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
+
+
+
+
+    let guiOverlay;
+
+    // Add custom CSS styles for the GUI overlay
+    GM_addStyle(`
+        /* Add your custom styles here */
+        .gui-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .gui-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        .close-btn {
+            cursor: pointer;
+            color: #007BFF;
+            text-decoration: underline;
+        }
+        /* Styles for the switches */
+        .switch-container {
+            display: grid;
+            grid-template-columns: 1fr auto; /* Adjust the width of the switches */
+            align-items: center;
+            gap: 10px; /* Adjust the gap between switches */
+            margin-bottom: 10px;
+        }
+        .switch {
+            display: flex;
+            align-items: center;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            width: 40px; /* Adjust the width of the switches */
+            height: 20px; /* Adjust the height as needed */
+            border-radius: 20px; /* Adjust the radius to make it half of the height */
+            background-color: #ccc;
+            position: relative;
+            transition: background-color 0.4s;
+        }
+        .slider:before {
+            content: '';
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            width: 16px; /* Adjust the width to make it slightly smaller than the switch */
+            height: 16px; /* Adjust the height to make it slightly smaller than the switch */
+            border-radius: 50%;
+            background-color: #fff;
+            transition: transform 0.4s;
+        }
+        input:checked + .slider {
+            background-color: #007BFF;
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px); /* Adjust the translation to align the circle properly */
+        }
+    `);
+
+    // Create and show the GUI overlay
+    function showGUI() {
+        guiOverlay = document.createElement('div');
+        guiOverlay.classList.add('gui-overlay');
+
+        const content = document.createElement('div');
+        content.classList.add('gui-content');
+
+        content.innerHTML = `
+            <h2>4me GUI MOD Settings:</h2>
+
+            <div class="switch-container">
+                <span>Feature 1:</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggleFeature1">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="switch-container">
+                <span>Feature 2:</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggleFeature2">
+                    <span class="slider"></span>
+                </label>
+            </div>
+   
+            <div class="switch-container">
+                <span>Feature 2:</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggleFeature2">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="switch-container">
+                <span>Feature 2:</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggleFeature2">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="switch-container">
+                <span>Feature 2:</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggleFeature2">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="switch-container">
+                <span>Feature 2:</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggleFeature2">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="switch-container">
+                <span>Feature 2:</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggleFeature2">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="switch-container">
+                <span>Feature 2:</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggleFeature2">
+                    <span class="slider"></span>
+                </label>
+            </div> 
+
+            <!-- Add more switches as needed -->
+            <div class="close-btn">Close</div>
+        `;
+
+        guiOverlay.appendChild(content);
+        document.body.appendChild(guiOverlay);
+
+        // Add event listeners for switches (add your logic here)
+        const toggleFeature1 = document.getElementById('toggleFeature1');
+        toggleFeature1.addEventListener('change', function () {
+            // Your logic to handle the 'Toggle Feature 1' switch change
+        });
+
+        const toggleFeature2 = document.getElementById('toggleFeature2');
+        toggleFeature2.addEventListener('change', function () {
+            // Your logic to handle the 'Toggle Feature 2' switch change
+        });
+
+        // Close button event listener
+        const closeButton = content.querySelector('.close-btn');
+        closeButton.addEventListener('click', function () {
+            closeGUI();
+        });
+    }
+
+    // Function to close the GUI overlay
+    function closeGUI() {
+        if (guiOverlay) {
+            guiOverlay.remove();
+        }
+    }
+
+    // Register custom menu command to open GUI
+    GM_registerMenuCommand('Open Settings', function () {
+        showGUI();
+    });
+
+
+    // #######################################################################################
 
     var $ = window.$; // Prevent warning by Tampermonkey editor.
 
@@ -39,53 +227,53 @@
     // Upon changes in the Detail area, call every function in the call_upon_details_change array.
     if (true) {
         // Handle changes in details area
-		const targetNode = document.getElementById('details_area');
+        const targetNode = document.getElementById('details_area');
 
-		// Options for the observer (which mutations to observe)
-		const config = { attributes: false, childList: true, subtree: true };
+        // Options for the observer (which mutations to observe)
+        const config = { attributes: false, childList: true, subtree: true };
 
-		// Callback function to execute when mutations are observed
-		const callback = (mutationList, observer) => {
-            for (var i=0; i<call_upon_details_change.length; i++) {
+        // Callback function to execute when mutations are observed
+        const callback = (mutationList, observer) => {
+            for (var i = 0; i < call_upon_details_change.length; i++) {
                 call_upon_details_change[i]();
             }
         };
 
-		// Create an observer instance linked to the callback function
-		const observer = new MutationObserver(callback);
+        // Create an observer instance linked to the callback function
+        const observer = new MutationObserver(callback);
 
-		// Start observing the target node for configured mutations
-		observer.observe(targetNode, config);
+        // Start observing the target node for configured mutations
+        observer.observe(targetNode, config);
     }
 
 
-    if(true) {
+    if (true) {
         // Grey-out lines containing "Waiting..." Records.
         $("div.grid-row").has("div.cell-status").filter(
-          function() {
-              var reg_w = /Waiting|Warten|Wachtend|En Attente|Esperando|Aguardando|Aspettando/;
-              var reg_wfy = /Waiting for You/;
-              return reg_w.test($(this).text()) && !reg_wfy.test($(this).text());
-          }
-        ).css("color","Gainsboro");
+            function () {
+                var reg_w = /Waiting|Warten|Wachtend|En Attente|Esperando|Aguardando|Aspettando/;
+                var reg_wfy = /Waiting for You/;
+                return reg_w.test($(this).text()) && !reg_wfy.test($(this).text());
+            }
+        ).css("color", "Gainsboro");
     }
 
 
     // Print lines bold where the current user is the assignee
     var currentUser = $("div.avatar").attr("alt");
-    $("td.cell-assignment:contains('" + currentUser + "')").closest('tr').find("td").css("font-weight","bold");
+    $("td.cell-assignment:contains('" + currentUser + "')").closest('tr').find("td").css("font-weight", "bold");
 
     // Highlight lines containing Top impact incidents
-    $("div.grid-row").has("div.icon-impact-top").css({"color":"red", "background-color" : "rgba(255,0,0, 0.08"});
+    $("div.grid-row").has("div.icon-impact-top").css({ "color": "red", "background-color": "rgba(255,0,0, 0.08" });
 
     // The new 4me UI has lots of whitespace in tables. Reduce this by 30%
-	$(".grid-container").css("--cell-height", "25px");
+    $(".grid-container").css("--cell-height", "25px");
 
     // Highlight all Record Identifiers contained in a list.
     // TODO Currently we don't differentiate problems, requests and tasks here. Fix this.
     if (false) {
         var highlightRecords = [1159, 1193, 173002, 179426];
-        $("span.record-identifier").filter(function() { return (highlightRecords.includes( parseInt( $(this).text() ))) }).css("color", "green");
+        $("span.record-identifier").filter(function () { return (highlightRecords.includes(parseInt($(this).text()))) }).css("color", "green");
     }
 
     // Gray background for internal comments.
@@ -95,13 +283,14 @@
             // Adding and checking apaIt_InternalComment is to prevent loops.
             $("div.icon-locked").closest("li").find("div.note-content").not(".apaIt_InternalComment")
                 .addClass("apaIt_InternalComment")
-                .css({"background-color" : "LightGray",
-                      "color": "black",
-                      "border-bottom-left-radius" : "5px",
-                      "border-bottom-right-radius" : "5px",
-                      "border-top-left-radius" : "5px",
-                      "border-top-right-radius" : "5px"
-                     });
+                .css({
+                    "background-color": "LightGray",
+                    "color": "black",
+                    "border-bottom-left-radius": "5px",
+                    "border-bottom-right-radius": "5px",
+                    "border-top-left-radius": "5px",
+                    "border-top-right-radius": "5px"
+                });
         };
 
         call_upon_details_change.push(FormatInternalComments);
@@ -114,8 +303,8 @@
 
 
 
-	// Add resize handles to code boxes
-	if (true) {
+    // Add resize handles to code boxes
+    if (true) {
         function AddCodeResizeHandles() {
             $("code").closest("div").css("overflow", "auto").css("resize", "both");
         }
@@ -124,11 +313,11 @@
 
         // Once upon load.
         AddCodeResizeHandles();
-	}
+    }
 
 
-	// Open links in same tab instead of new one.
-	if (false) {
+    // Open links in same tab instead of new one.
+    if (false) {
         function RemoveTargetBlank() {
             $('a[target="_blank"]').removeAttr('target');
         }
@@ -137,28 +326,27 @@
 
         // Once upon load.
         RemoveTargetBlank();
-	}
+    }
 
 
     // Hotkeys
     if (true) {
 
         // When the 'e' key is pressed, click the 'Edit' button.
-        $(document).bind('keypress', 'e', function() {
-            if($(".modal_panel").length > 0) return; // Don't click the edit button when modal panels are visible.
+        $(document).bind('keypress', 'e', function () {
+            if ($(".modal_panel").length > 0) return; // Don't click the edit button when modal panels are visible.
 
             $("span.icon-edit").click();
         });
 
         function inputFocused() {
             console.log("inputFocused");
-            if (   $(document.activeElement).is("input")
+            if ($(document.activeElement).is("input")
                 || $(document.activeElement).hasClass("public-DraftEditor-content")
                 || $(document.activeElement).hasClass("ProseMirror")
                 || $(document.activeElement).is('.suggest, .txt')
                 || $(document.activeElement).is("select")
-                )
-        {
+            ) {
                 console.log("activeEle");
                 return true;
             } else {
@@ -169,7 +357,7 @@
         }
 
         // When the 'g' key is pressed, click the 'Down' button to scroll to the bottom of the Request.
-        $(document).bind('keypress', 'g', function() {
+        $(document).bind('keypress', 'g', function () {
             // Don't do anything if the user is typing in an input element.
             console.log("g pressed");
             if (!inputFocused()) {
@@ -178,7 +366,7 @@
         });
 
         // When the 't' key is pressed, click the 'Up' button to scroll to the top of the Request.
-        $(document).bind('keypress', 't', function() {
+        $(document).bind('keypress', 't', function () {
             // Don't do anything if the user is typing in an input element.
             if (!inputFocused()) {
                 $("i.scroll-button-up").click();
@@ -186,14 +374,14 @@
         });
 
         // When the Escape key is pressed, cancel editing.
-        $(document).keyup(function(e){
-          if(e.keyCode === 27) { // Escape
-              if ($("#active_save_changes_confirm").length) { // Is the 'your changes will be lost' popup visible?
-                  $("#active_save_changes_confirm").find("#save_changes_cancel").click(); // Click the 'cancel' button in the 'your changes will be lost' popup.
-              } else {
-                  $("div.btn.cancel").click(); // Cancel editing.
-              }
-          }
+        $(document).keyup(function (e) {
+            if (e.keyCode === 27) { // Escape
+                if ($("#active_save_changes_confirm").length) { // Is the 'your changes will be lost' popup visible?
+                    $("#active_save_changes_confirm").find("#save_changes_cancel").click(); // Click the 'cancel' button in the 'your changes will be lost' popup.
+                } else {
+                    $("div.btn.cancel").click(); // Cancel editing.
+                }
+            }
         });
     }
 
@@ -201,16 +389,15 @@
     if (true) {
         // Opening multiple Requests is currently difficult in Self Service because Requests
         // cannot be Ctrl-clicked to open them in a new tab. This fixes the issue by adding Ctrl-clickable links.
-        $("li.list-item[id*='request_']").each ( function() {
-            $(this).find("div.lane-actions").append("<br><a href=\"" + $(this).attr("href") + "\">Ctrl-clickable Link</a>" )
-        } );
+        $("li.list-item[id*='request_']").each(function () {
+            $(this).find("div.lane-actions").append("<br><a href=\"" + $(this).attr("href") + "\">Ctrl-clickable Link</a>")
+        });
 
 
         // Have a second save button at the bottom. Useful for Requests with more than three Notes.
         var saveButton = $("button#save");
         var newSaveButton = saveButton.clone().appendTo("form.edit_req");
-        newSaveButton.click(function() { saveButton.click(); });
+        newSaveButton.click(function () { saveButton.click(); });
     }
 
 })();
-// vim: ts=4 expandtab
