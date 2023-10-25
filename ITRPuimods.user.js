@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.14
+// @version      0.15
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome. Use at your own risk.
 // @author       Thomas Volpini
 // @grant        none
@@ -41,23 +41,24 @@
         // Handle changes in details area
 		const targetNode = document.getElementById('details_area');
 
-		// Options for the observer (which mutations to observe)
-		const config = { attributes: false, childList: true, subtree: true };
+        if(targetNode) {
+            // Options for the observer (which mutations to observe)
+            const config = { attributes: false, childList: true, subtree: true };
 
-		// Callback function to execute when mutations are observed
-		const callback = (mutationList, observer) => {
-            for (var i=0; i<call_upon_details_change.length; i++) {
-                call_upon_details_change[i]();
-            }
-        };
+            // Callback function to execute when mutations are observed
+            const callback = (mutationList, observer) => {
+                for (var i=0; i<call_upon_details_change.length; i++) {
+                    call_upon_details_change[i]();
+                }
+            };
 
-		// Create an observer instance linked to the callback function
-		const observer = new MutationObserver(callback);
+            // Create an observer instance linked to the callback function
+            const observer = new MutationObserver(callback);
 
-		// Start observing the target node for configured mutations
-		observer.observe(targetNode, config);
+            // Start observing the target node for configured mutations
+            observer.observe(targetNode, config);
+        }
     }
-
 
     if(true) {
         // Grey-out lines containing "Waiting..." Records.
