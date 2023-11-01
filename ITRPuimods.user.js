@@ -1,6 +1,5 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @namespace    http://your-namespace.com
 // @version      0.14
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome. Use at your own risk.
 // @author       Thomas Volpini
