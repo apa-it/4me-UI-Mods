@@ -1,9 +1,13 @@
 // ==UserScript==
-// @name         My Script with GUI
+// @name         ITRPuimods
 // @namespace    http://your-namespace.com
-// @version      0.1
-// @description  A script with a simple GUI for customization.
-// @author       Your Name
+// @version      0.14
+// @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome. Use at your own risk.
+// @author       Thomas Volpini
+//
+// @updateURL    https://github.com/apa-it/4me-UI-Mods/raw/master/ITRPuimods.user.js
+// @downloadURL  https://github.com/apa-it/4me-UI-Mods/raw/master/ITRPuimods.user.js
+//
 // @match   https://*.itrp.at/*
 // @match   https://*.itrp.at/*
 //
