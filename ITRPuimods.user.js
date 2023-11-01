@@ -21,383 +21,646 @@
 //
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
+// @grant        GM_setValue
+// @grant        GM_getValue
+//
+// @require https://code.jquery.com/jquery-3.6.4.min.js
+//
 // ==/UserScript==
 
 (function () {
-    'use strict';
+  "use strict";
 
+  let guiOverlay;
 
+  // Add custom CSS styles for the GUI overlay
+  GM_addStyle(`
+          /* Add your custom styles here */
+          .gui-overlay {
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background-color: rgba(0, 0, 0, 0.5);
+              z-index: 9999;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+          }
+          .gui-content {
+              background-color: #fff;
+              padding: 20px;
+              border-radius: 5px;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+          }
+          .close-btn, .save-btn {
+          cursor: pointer;
+          color: #007BFF;
+          text-decoration: underline;
+          vertical-align: middle; /* Align buttons vertically */
+          display: inline-block; /* Set display to inline-block */
+      }
+      .save-btn {
+          cursor: pointer;
+          color: #007BFF;
+          text-decoration: underline;
+          float: right; /* Keep the Save button on the right */
+      }
+          /* Styles for the switches */
+          .switch-container {
+              display: grid;
+              grid-template-columns: 1fr auto; /* Adjust the width of the switches */
+              align-items: center;
+              gap: 10px; /* Adjust the gap between switches */
+              margin-bottom: 10px;
+          }
+          .switch {
+              display: flex;
+              align-items: center;
+          }
+          .switch input {
+              opacity: 0;
+              width: 0;
+              height: 0;
+          }
+          .slider {
+              width: 40px; /* Adjust the width of the switches */
+              height: 20px; /* Adjust the height as needed */
+              border-radius: 20px; /* Adjust the radius to make it half of the height */
+              background-color: #ccc;
+              position: relative;
+              transition: background-color 0.4s;
+          }
+          .slider:before {
+              content: '';
+              position: absolute;
+              left: 2px;
+              top: 2px;
+              width: 16px; /* Adjust the width to make it slightly smaller than the switch */
+              height: 16px; /* Adjust the height to make it slightly smaller than the switch */
+              border-radius: 50%;
+              background-color: #fff;
+              transition: transform 0.4s;
+          }
+          input:checked + .slider {
+              background-color: #007BFF;
+          }
+          input:checked + .slider:before {
+              transform: translateX(20px); /* Adjust the translation to align the circle properly */
+          }
+      `);
 
+  // Configuration settings for various features. Retrieved using GM_getValue.
+  // Defaults are provided in case the settings are not defined yet.
+  let config_DetailsAreaChanges = GM_getValue(
+    "config_DetailsAreaChanges",
+    true
+  );
 
-    let guiOverlay;
+  let config_GrayOutWaitingRecords = GM_getValue(
+    "config_GrayOutWaitingRecords",
+    true
+  );
 
-    // Add custom CSS styles for the GUI overlay
-    GM_addStyle(`
-        /* Add your custom styles here */
-        .gui-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .gui-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        }
-        .close-btn {
-            cursor: pointer;
-            color: #007BFF;
-            text-decoration: underline;
-        }
-        /* Styles for the switches */
-        .switch-container {
-            display: grid;
-            grid-template-columns: 1fr auto; /* Adjust the width of the switches */
-            align-items: center;
-            gap: 10px; /* Adjust the gap between switches */
-            margin-bottom: 10px;
-        }
-        .switch {
-            display: flex;
-            align-items: center;
-        }
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            width: 40px; /* Adjust the width of the switches */
-            height: 20px; /* Adjust the height as needed */
-            border-radius: 20px; /* Adjust the radius to make it half of the height */
-            background-color: #ccc;
-            position: relative;
-            transition: background-color 0.4s;
-        }
-        .slider:before {
-            content: '';
-            position: absolute;
-            left: 2px;
-            top: 2px;
-            width: 16px; /* Adjust the width to make it slightly smaller than the switch */
-            height: 16px; /* Adjust the height to make it slightly smaller than the switch */
-            border-radius: 50%;
-            background-color: #fff;
-            transition: transform 0.4s;
-        }
-        input:checked + .slider {
-            background-color: #007BFF;
-        }
-        input:checked + .slider:before {
-            transform: translateX(20px); /* Adjust the translation to align the circle properly */
-        }
-    `);
+  let config_BoldCurrentUserAssignments = GM_getValue(
+    "config_BoldCurrentUserAssignments",
+    true
+  );
 
-    // Create and show the GUI overlay
-    function showGUI() {
-        guiOverlay = document.createElement('div');
-        guiOverlay.classList.add('gui-overlay');
+  let config_HighlightTopImpactIncidents = GM_getValue(
+    "config_HighlightTopImpactIncidents",
+    true
+  );
 
-        const content = document.createElement('div');
-        content.classList.add('gui-content');
+  let config_ReduceWhitespaceInTables = GM_getValue(
+    "config_ReduceWhitespaceInTables",
+    true
+  );
 
-        content.innerHTML = `
+  let config_HighlightRecordIdentifiers = GM_getValue(
+    "config_HighlightRecordIdentifiers",
+    false
+  );
+
+  let config_GrayBackgroundForInternalComments = GM_getValue(
+    "config_GrayBackgroundForInternalComments",
+    true
+  );
+
+  let config_ResizeHandlesForCodeBoxes = GM_getValue(
+    "config_ResizeHandlesForCodeBoxes",
+    true
+  );
+
+  let config_OpenLinksInSameTab = GM_getValue(
+    "config_OpenLinksInSameTab",
+    false
+  );
+
+  let config_Hotkeys = GM_getValue("config_Hotkeys", true);
+
+  let config_SelfServiceEnhancements = GM_getValue(
+    "config_SelfServiceEnhancements",
+    true
+  );
+
+  // Create and show the GUI overlay
+  function showGUI() {
+    guiOverlay = document.createElement("div");
+    guiOverlay.classList.add("gui-overlay");
+
+    const content = document.createElement("div");
+    content.classList.add("gui-content");
+
+    content.innerHTML = `
             <h2>4me GUI MOD Settings:</h2>
 
             <div class="switch-container">
-                <span>Feature 1:</span>
+                <span>Details Area Changes: </span>
                 <label class="switch">
-                    <input type="checkbox" id="toggleFeature1">
+                    <input type="checkbox" id="config_DetailsAreaChanges">
                     <span class="slider"></span>
                 </label>
             </div>
 
             <div class="switch-container">
-                <span>Feature 2:</span>
+                <span>Gray Out Waiting Records:</span>
                 <label class="switch">
-                    <input type="checkbox" id="toggleFeature2">
-                    <span class="slider"></span>
-                </label>
-            </div>
-   
-            <div class="switch-container">
-                <span>Feature 2:</span>
-                <label class="switch">
-                    <input type="checkbox" id="toggleFeature2">
+                    <input type="checkbox" id="config_GrayOutWaitingRecords">
                     <span class="slider"></span>
                 </label>
             </div>
 
             <div class="switch-container">
-                <span>Feature 2:</span>
+                <span>Bold Current User Assignments:</span>
                 <label class="switch">
-                    <input type="checkbox" id="toggleFeature2">
+                    <input type="checkbox" id="config_BoldCurrentUserAssignments">
                     <span class="slider"></span>
                 </label>
             </div>
 
             <div class="switch-container">
-                <span>Feature 2:</span>
+                <span>Highlight Top Impact Incidents:</span>
                 <label class="switch">
-                    <input type="checkbox" id="toggleFeature2">
+                    <input type="checkbox" id="config_HighlightTopImpactIncidents">
                     <span class="slider"></span>
                 </label>
             </div>
 
             <div class="switch-container">
-                <span>Feature 2:</span>
+                <span>Reduce Whitespace in Tables:</span>
                 <label class="switch">
-                    <input type="checkbox" id="toggleFeature2">
+                    <input type="checkbox" id="config_ReduceWhitespaceInTables">
                     <span class="slider"></span>
                 </label>
             </div>
 
             <div class="switch-container">
-                <span>Feature 2:</span>
+                <span>Highlight Record Identifiers:</span>
                 <label class="switch">
-                    <input type="checkbox" id="toggleFeature2">
+                    <input type="checkbox" id="config_HighlightRecordIdentifiers">
                     <span class="slider"></span>
                 </label>
             </div>
-            
+
             <div class="switch-container">
-                <span>Feature 2:</span>
+                <span>Gray Background for Internal Comments:</span>
                 <label class="switch">
-                    <input type="checkbox" id="toggleFeature2">
+                    <input type="checkbox" id="config_GrayBackgroundForInternalComments">
                     <span class="slider"></span>
                 </label>
-            </div> 
+            </div>
 
-            <!-- Add more switches as needed -->
+            <div class="switch-container">
+                <span>Resize Handles for Code Boxes:</span>
+                <label class="switch">
+                    <input type="checkbox" id="config_ResizeHandlesForCodeBoxes">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="switch-container">
+                <span>Open Links in Same Tab:</span>
+                <label class="switch">
+                    <input type="checkbox" id="config_OpenLinksInSameTab">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="switch-container">
+                <span>Hotkeys:</span>
+                <label class="switch">
+                    <input type="checkbox" id="config_Hotkeys">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="switch-container">
+                <span>Self-Service Enhancements:</span>
+                <label class="switch">
+                    <input type="checkbox" id="config_SelfServiceEnhancements">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
             <div class="close-btn">Close</div>
+            <div class="save-btn">Save</div>
         `;
 
-        guiOverlay.appendChild(content);
-        document.body.appendChild(guiOverlay);
+    guiOverlay.appendChild(content);
+    document.body.appendChild(guiOverlay);
 
-        // Add event listeners for switches (add your logic here)
-        const toggleFeature1 = document.getElementById('toggleFeature1');
-        toggleFeature1.addEventListener('change', function () {
-            // Your logic to handle the 'Toggle Feature 1' switch change
-        });
-
-        const toggleFeature2 = document.getElementById('toggleFeature2');
-        toggleFeature2.addEventListener('change', function () {
-            // Your logic to handle the 'Toggle Feature 2' switch change
-        });
-
-        // Close button event listener
-        const closeButton = content.querySelector('.close-btn');
-        closeButton.addEventListener('click', function () {
-            closeGUI();
-        });
-    }
-
-    // Function to close the GUI overlay
-    function closeGUI() {
-        if (guiOverlay) {
-            guiOverlay.remove();
-        }
-    }
-
-    // Register custom menu command to open GUI
-    GM_registerMenuCommand('Open Settings', function () {
-        showGUI();
+    // Event listeners and actions for GUI elements related to configuration settings ( if true, then switch on => achieved with <Element>.checked )
+    // Details Area Changes
+    const detailsAreaChangesElement = document.getElementById(
+      "config_DetailsAreaChanges"
+    );
+    detailsAreaChangesElement.checked = config_DetailsAreaChanges;
+    detailsAreaChangesElement.addEventListener("change", function () {
+      console.log("DetailsAreaChanges");
+      GM_setValue("config_DetailsAreaChanges", !config_DetailsAreaChanges);
     });
 
+    // Gray Out Waiting Records
+    const grayOutWaitingRecordsElement = document.getElementById(
+      "config_GrayOutWaitingRecords"
+    );
+    grayOutWaitingRecordsElement.checked = config_GrayOutWaitingRecords;
+    grayOutWaitingRecordsElement.addEventListener("change", function () {
+      console.log("GrayOutGrayOutWaitingRecordsWaitingRecords");
+      GM_setValue(
+        "config_GrayOutWaitingRecords",
+        !config_GrayOutWaitingRecords
+      );
+    });
 
-    // #######################################################################################
+    // Bold Current User Assignments
+    const boldCurrentUserAssignmentsElement = document.getElementById(
+      "config_BoldCurrentUserAssignments"
+    );
+    boldCurrentUserAssignmentsElement.checked =
+      config_BoldCurrentUserAssignments;
+    boldCurrentUserAssignmentsElement.addEventListener("change", function () {
+      console.log("BoldCurrentUserAssignments");
+      GM_setValue(
+        "config_BoldCurrentUserAssignments",
+        !config_BoldCurrentUserAssignments
+      );
+    });
 
-    var $ = window.$; // Prevent warning by Tampermonkey editor.
+    // Highlight Top Impact Incidents
+    const highlightTopImpactIncidentsElement = document.getElementById(
+      "config_HighlightTopImpactIncidents"
+    );
+    highlightTopImpactIncidentsElement.checked =
+      config_HighlightTopImpactIncidents;
+    highlightTopImpactIncidentsElement.addEventListener("change", function () {
+      console.log("highlightTopImpactIncidents");
+      GM_setValue(
+        "config_HighlightTopImpactIncidents",
+        !config_HighlightTopImpactIncidents
+      );
+    });
 
+    // Reduce Whitespace in Tables
+    const reduceWhitespaceInTablesElement = document.getElementById(
+      "config_ReduceWhitespaceInTables"
+    );
+    reduceWhitespaceInTablesElement.checked = config_ReduceWhitespaceInTables;
+    reduceWhitespaceInTablesElement.addEventListener("change", function () {
+      console.log("reduceWhitespaceInTables");
+      GM_setValue(
+        "config_ReduceWhitespaceInTables",
+        !config_ReduceWhitespaceInTables
+      );
+    });
 
-    // Sometimes elements in the Detail Area only become visible after the DOM is loaded, e.g. when
-    // the user clicks a Request in the Request list and the Request is shown in the detail view on the right.
-    // All of the functions in this array will be called when the Details Area gets new content.
-    var call_upon_details_change = [];
+    // Highlight Record Identifiers
+    const highlightRecordIdentifiersElement = document.getElementById(
+      "config_HighlightRecordIdentifiers"
+    );
+    highlightRecordIdentifiersElement.checked =
+      config_HighlightRecordIdentifiers;
+    highlightRecordIdentifiersElement.addEventListener("change", function () {
+      console.log("highlightrecordidentifiers");
+      GM_setValue(
+        "config_HighlightRecordIdentifiers",
+        !config_HighlightRecordIdentifiers
+      );
+    });
 
-    // Upon changes in the Detail area, call every function in the call_upon_details_change array.
-    if (true) {
-        // Handle changes in details area
-        const targetNode = document.getElementById('details_area');
+    // Gray Background for Internal Comments
+    const grayBackgroundForInternalCommentsElement = document.getElementById(
+      "config_GrayBackgroundForInternalComments"
+    );
+    grayBackgroundForInternalCommentsElement.checked =
+      config_GrayBackgroundForInternalComments;
+    grayBackgroundForInternalCommentsElement.addEventListener(
+      "change",
+      function () {
+        console.log("graybackgroundforinternalcomments");
+        GM_setValue(
+          "config_GrayBackgroundForInternalComments",
+          !config_GrayBackgroundForInternalComments
+        );
+      }
+    );
 
-        // Options for the observer (which mutations to observe)
-        const config = { attributes: false, childList: true, subtree: true };
+    // Resize Handles for Code Boxes
+    const resizeHandlesForCodeBoxesElement = document.getElementById(
+      "config_ResizeHandlesForCodeBoxes"
+    );
+    resizeHandlesForCodeBoxesElement.checked = config_ResizeHandlesForCodeBoxes;
+    resizeHandlesForCodeBoxesElement.addEventListener("change", function () {
+      console.log("resizehandlesforcodeboxeselement");
+      GM_setValue(
+        "config_ResizeHandlesForCodeBoxes",
+        !config_ResizeHandlesForCodeBoxes
+      );
+    });
 
-        // Callback function to execute when mutations are observed
-        const callback = (mutationList, observer) => {
-            for (var i = 0; i < call_upon_details_change.length; i++) {
-                call_upon_details_change[i]();
-            }
-        };
-
-        // Create an observer instance linked to the callback function
-        const observer = new MutationObserver(callback);
-
-        // Start observing the target node for configured mutations
-        observer.observe(targetNode, config);
-    }
-
-
-    if (true) {
-        // Grey-out lines containing "Waiting..." Records.
-        $("div.grid-row").has("div.cell-status").filter(
-            function () {
-                var reg_w = /Waiting|Warten|Wachtend|En Attente|Esperando|Aguardando|Aspettando/;
-                var reg_wfy = /Waiting for You/;
-                return reg_w.test($(this).text()) && !reg_wfy.test($(this).text());
-            }
-        ).css("color", "Gainsboro");
-    }
-
-
-    // Print lines bold where the current user is the assignee
-    var currentUser = $("div.avatar").attr("alt");
-    $("td.cell-assignment:contains('" + currentUser + "')").closest('tr').find("td").css("font-weight", "bold");
-
-    // Highlight lines containing Top impact incidents
-    $("div.grid-row").has("div.icon-impact-top").css({ "color": "red", "background-color": "rgba(255,0,0, 0.08" });
-
-    // The new 4me UI has lots of whitespace in tables. Reduce this by 30%
-    $(".grid-container").css("--cell-height", "25px");
-
-    // Highlight all Record Identifiers contained in a list.
-    // TODO Currently we don't differentiate problems, requests and tasks here. Fix this.
-    if (false) {
-        var highlightRecords = [1159, 1193, 173002, 179426];
-        $("span.record-identifier").filter(function () { return (highlightRecords.includes(parseInt($(this).text()))) }).css("color", "green");
-    }
-
-    // Gray background for internal comments.
-    // This makes it easier to see if a record didn't get a customer-visible comment for some time.
-    if (true) {
-        function FormatInternalComments() {
-            // Adding and checking apaIt_InternalComment is to prevent loops.
-            $("div.icon-locked").closest("li").find("div.note-content").not(".apaIt_InternalComment")
-                .addClass("apaIt_InternalComment")
-                .css({
-                    "background-color": "LightGray",
-                    "color": "black",
-                    "border-bottom-left-radius": "5px",
-                    "border-bottom-right-radius": "5px",
-                    "border-top-left-radius": "5px",
-                    "border-top-right-radius": "5px"
-                });
-        };
-
-        call_upon_details_change.push(FormatInternalComments);
-
-        // Once upon load.
-        // This call is for internal comments that are immediately visible after the DOM is loaded.
-        FormatInternalComments();
-
-    }
-
-
-
-    // Add resize handles to code boxes
-    if (true) {
-        function AddCodeResizeHandles() {
-            $("code").closest("div").css("overflow", "auto").css("resize", "both");
-        }
-
-        call_upon_details_change.push(AddCodeResizeHandles);
-
-        // Once upon load.
-        AddCodeResizeHandles();
-    }
-
-
-    // Open links in same tab instead of new one.
-    if (false) {
-        function RemoveTargetBlank() {
-            $('a[target="_blank"]').removeAttr('target');
-        }
-
-        call_upon_modal_change.push(RemoveTargetBlank);
-
-        // Once upon load.
-        RemoveTargetBlank();
-    }
-
+    // Open Links in Same Tab
+    const openLinksInSameTabElement = document.getElementById(
+      "config_OpenLinksInSameTab"
+    );
+    openLinksInSameTabElement.checked = config_OpenLinksInSameTab;
+    openLinksInSameTabElement.addEventListener("change", function () {
+      console.log("openLinksinSameTab");
+      GM_setValue("config_OpenLinksInSameTab", !config_OpenLinksInSameTab);
+    });
 
     // Hotkeys
-    if (true) {
+    const hotkeysElement = document.getElementById("config_Hotkeys");
+    hotkeysElement.checked = config_Hotkeys;
+    hotkeysElement.addEventListener("change", function () {
+      console.log("hotkeys");
+      GM_setValue("config_Hotkeys", !config_Hotkeys);
+    });
 
-        // When the 'e' key is pressed, click the 'Edit' button.
-        $(document).bind('keypress', 'e', function () {
-            if ($(".modal_panel").length > 0) return; // Don't click the edit button when modal panels are visible.
+    // Self Service Enhancements
+    const selfServiceEnhancements = document.getElementById(
+      "config_SelfServiceEnhancements"
+    );
+    selfServiceEnhancements.checked = config_SelfServiceEnhancements;
+    selfServiceEnhancements.addEventListener("change", function () {
+      console.log("selfServiceEnhancements");
+      GM_setValue(
+        "config_SelfServiceEnhancements",
+        !config_SelfServiceEnhancements
+      );
+    });
 
-            $("span.icon-edit").click();
+    // Event listeners for close and save buttons within the GUI overlay.
+    const closeButton = content.querySelector(".close-btn");
+    closeButton.addEventListener("click", function () {
+      closeGUI();
+    });
+
+    const saveButton = content.querySelector(".save-btn");
+    saveButton.addEventListener("click", function () {
+      location.reload(true);
+    });
+  }
+
+  // Function to close the GUI overlay
+  function closeGUI() {
+    if (guiOverlay) {
+      guiOverlay.remove();
+    }
+  }
+
+  // Register custom menu command to open GUI
+  GM_registerMenuCommand("Open Settings", function () {
+    showGUI();
+  });
+
+  // #######################################################################################
+  const jQuery = window.jQuery; // Prevent warning by Tampermonkey editor.
+
+  // Sometimes elements in the Detail Area only become visible after the DOM is loaded, e.g. when
+  // the user clicks a Request in the Request list and the Request is shown in the detail view on the right.
+  // All of the functions in this array will be called when the Details Area gets new content.
+  let call_upon_details_change = [];
+
+  // Upon changes in the Detail area, call every function in the call_upon_details_change array.
+  if (config_DetailsAreaChanges) {
+    console.log("DetailsAreaChanges-Feature enabled!");
+    // Handle changes in details area
+    const targetNode = document.getElementById("details_area");
+
+    // Options for the observer (which mutations to observe)
+    const config = { attributes: false, childList: true, subtree: true };
+
+    // Callback function to execute when mutations are observed
+    const callback = (mutationList, observer) => {
+      for (let i = 0; i < call_upon_details_change.length; i++) {
+        call_upon_details_change[i]();
+      }
+    };
+
+    // Create an observer instance linked to the callback function
+    const observer = new MutationObserver(callback);
+
+    // Start observing the target node for configured mutations
+    observer.observe(targetNode, config);
+  }
+
+  if (config_BoldCurrentUserAssignments) {
+    console.log("BoldCurrentUserAssignments-Feature enabled!");
+    // Print lines bold where the current user is the assignee
+    let currentUser = jQuery("div.avatar").attr("alt");
+    jQuery("td.cell-assignment:contains('" + currentUser + "')")
+      .closest("tr")
+      .find("td")
+      .css("font-weight", "bold");
+  }
+
+  // Highlight lines containing Top impact incidents
+  if (config_HighlightTopImpactIncidents) {
+    console.log("HighlightTopImpactIncidents-Feature enabled!");
+    jQuery("div.grid-row")
+      .has("div.icon-impact-top")
+      .css({ color: "red", "background-color": "rgba(255,0,0, 0.08" });
+  }
+
+  // The new 4me UI has lots of whitespace in tables. Reduce this by 30%
+  if (config_ReduceWhitespaceInTables) {
+    console.log("ReduceWhitespaceInTables-Feature enabled!");
+    jQuery(".grid-container").css("--cell-height", "25px");
+  }
+
+  // Highlight all Record Identifiers contained in a list.
+  // TODO Currently we don't differentiate problems, requests and tasks here. Fix this.
+  if (config_HighlightRecordIdentifiers) {
+    console.log("HighlightRecordIdentifiers-Feature enabled!");
+
+    let highlightRecords = [1159, 1193, 173002, 179426];
+    jQuery("span.record-identifier")
+      .filter(function () {
+        return highlightRecords.includes(parseInt(jQuery(this).text()));
+      })
+      .css("color", "green");
+  }
+
+  // Gray background for internal comments.
+  // This makes it easier to see if a record didn't get a customer-visible comment for some time.
+  if (config_GrayBackgroundForInternalComments) {
+    console.log("GrayBackgroundForInternalComments-Feature enabled!");
+
+    function FormatInternalComments() {
+      // Adding and checking apaIt_InternalComment is to prevent loops.
+      jQuery("div.icon-locked")
+        .closest("li")
+        .find("div.note-content")
+        .not(".apaIt_InternalComment")
+        .addClass("apaIt_InternalComment")
+        .css({
+          "background-color": "LightGray",
+          color: "black",
+          "border-bottom-left-radius": "5px",
+          "border-bottom-right-radius": "5px",
+          "border-top-left-radius": "5px",
+          "border-top-right-radius": "5px",
         });
+    }
 
-        function inputFocused() {
-            console.log("inputFocused");
-            if ($(document.activeElement).is("input")
-                || $(document.activeElement).hasClass("public-DraftEditor-content")
-                || $(document.activeElement).hasClass("ProseMirror")
-                || $(document.activeElement).is('.suggest, .txt')
-                || $(document.activeElement).is("select")
-            ) {
-                console.log("activeEle");
-                return true;
-            } else {
-                console.log("no activeele");
+    call_upon_details_change.push(FormatInternalComments);
 
-                return false;
-            }
+    // Once upon load.
+    // This call is for internal comments that are immediately visible after the DOM is loaded.
+    FormatInternalComments();
+  }
+
+  // Add resize handles to code boxes
+  if (config_ResizeHandlesForCodeBoxes) {
+    console.log("ResizeHandlesForCodeBoxes-Feature enabled!");
+
+    function AddCodeResizeHandles() {
+      jQuery("code")
+        .closest("div")
+        .css("overflow", "auto")
+        .css("resize", "both");
+    }
+
+    call_upon_details_change.push(AddCodeResizeHandles);
+
+    // Once upon load.
+    AddCodeResizeHandles();
+  }
+
+  // Open links in same tab instead of new one.
+  if (config_OpenLinksInSameTab) {
+    console.log("OpenLinksInSameTab-Feature enabled!");
+
+    function RemoveTargetBlank() {
+      jQuery('a[target="_blank"]').removeAttr("target");
+    }
+
+    call_upon_details_change.push(RemoveTargetBlank);
+    // Once upon load.
+    RemoveTargetBlank();
+  }
+
+  if (config_Hotkeys) {
+    console.log("Hotkeys-Feature enabled!");
+
+    // When the 'e' key is pressed, click the 'Edit' button.
+    jQuery(document).bind("keypress", "e", function () {
+      if (jQuery(".modal_panel").length > 0) return; // Don't click the edit button when modal panels are visible.
+
+      jQuery("span.icon-edit").click();
+    });
+
+    function inputFocused() {
+      console.log("inputFocused");
+      if (
+        jQuery(document.activeElement).is("input") ||
+        jQuery(document.activeElement).hasClass("public-DraftEditor-content") ||
+        jQuery(document.activeElement).hasClass("ProseMirror") ||
+        jQuery(document.activeElement).is(".suggest, .txt") ||
+        jQuery(document.activeElement).is("select")
+      ) {
+        console.log("activeEle");
+        return true;
+      } else {
+        console.log("no activeele");
+
+        return false;
+      }
+    }
+
+    // When the 'g' key is pressed, click the 'Down' button to scroll to the bottom of the Request.
+    jQuery(document).bind("keypress", "g", function () {
+      // Don't do anything if the user is typing in an input element.
+      console.log("g pressed");
+      if (!inputFocused()) {
+        jQuery("i.scroll-button-down").click();
+      }
+    });
+
+    // When the 't' key is pressed, click the 'Up' button to scroll to the top of the Request.
+    jQuery(document).bind("keypress", "t", function () {
+      // Don't do anything if the user is typing in an input element.
+      if (!inputFocused()) {
+        jQuery("i.scroll-button-up").click();
+      }
+    });
+
+    // When the Escape key is pressed, cancel editing.
+    jQuery(document).keyup(function (e) {
+      if (e.keyCode === 27) {
+        // Escape
+        if (jQuery("#active_save_changes_confirm").length) {
+          // Is the 'your changes will be lost' popup visible?
+          jQuery("#active_save_changes_confirm")
+            .find("#save_changes_cancel")
+            .click(); // Click the 'cancel' button in the 'your changes will be lost' popup.
+        } else {
+          jQuery("div.btn.cancel").click(); // Cancel editing.
         }
+      }
+    });
+  }
 
-        // When the 'g' key is pressed, click the 'Down' button to scroll to the bottom of the Request.
-        $(document).bind('keypress', 'g', function () {
-            // Don't do anything if the user is typing in an input element.
-            console.log("g pressed");
-            if (!inputFocused()) {
-                $("i.scroll-button-down").click();
-            }
-        });
+  // Self Service
+  if (config_SelfServiceEnhancements) {
+    console.log("SelfServiceEnhancements-Feature enabled!");
 
-        // When the 't' key is pressed, click the 'Up' button to scroll to the top of the Request.
-        $(document).bind('keypress', 't', function () {
-            // Don't do anything if the user is typing in an input element.
-            if (!inputFocused()) {
-                $("i.scroll-button-up").click();
-            }
-        });
+    // Opening multiple Requests is currently difficult in Self Service because Requests
+    // cannot be Ctrl-clicked to open them in a new tab. This fixes the issue by adding Ctrl-clickable links.
+    jQuery("li.list-item[id*='request_']").each(function () {
+      jQuery(this)
+        .find("div.lane-actions")
+        .append(
+          '<br><a href="' +
+            jQuery(this).attr("href") +
+            '">Ctrl-clickable Link</a>'
+        );
+    });
 
-        // When the Escape key is pressed, cancel editing.
-        $(document).keyup(function (e) {
-            if (e.keyCode === 27) { // Escape
-                if ($("#active_save_changes_confirm").length) { // Is the 'your changes will be lost' popup visible?
-                    $("#active_save_changes_confirm").find("#save_changes_cancel").click(); // Click the 'cancel' button in the 'your changes will be lost' popup.
-                } else {
-                    $("div.btn.cancel").click(); // Cancel editing.
-                }
-            }
-        });
-    }
+    // Have a second save button at the bottom. Useful for Requests with more than three Notes.
+    let saveButton = jQuery("button#save");
+    let newSaveButton = saveButton.clone().appendTo("form.edit_req");
+    newSaveButton.click(function () {
+      saveButton.click();
+    });
+  }
 
-    // Self Service
-    if (true) {
-        // Opening multiple Requests is currently difficult in Self Service because Requests
-        // cannot be Ctrl-clicked to open them in a new tab. This fixes the issue by adding Ctrl-clickable links.
-        $("li.list-item[id*='request_']").each(function () {
-            $(this).find("div.lane-actions").append("<br><a href=\"" + $(this).attr("href") + "\">Ctrl-clickable Link</a>")
-        });
+  if (config_GrayOutWaitingRecords) {
+    console.log("GrayOutWaitingRecords-Feature enabled!");
 
-
-        // Have a second save button at the bottom. Useful for Requests with more than three Notes.
-        var saveButton = $("button#save");
-        var newSaveButton = saveButton.clone().appendTo("form.edit_req");
-        newSaveButton.click(function () { saveButton.click(); });
-    }
-
+    // Gray-out lines containing "Waiting..." Records.
+    jQuery("div.grid-row")
+      .has("div.cell-status")
+      .filter(function () {
+        let reg_w =
+          /Waiting|Warten|Wachtend|En Attente|Esperando|Aguardando|Aspettando/;
+        let reg_wfy = /Waiting for You/;
+        return (
+          reg_w.test(jQuery(this).text()) && !reg_wfy.test(jQuery(this).text())
+        );
+      })
+      .css("color", "Gainsboro");
+  }
 })();
