@@ -10,6 +10,9 @@ Use this script at your own risk. Merge requests and suggestions are always welc
 Install the [Tampermonkey](https://www.tampermonkey.net/) extension for your browser, add a new script and copy-paste the content of [ITRPuimods.user.js](https://github.com/apa-it/4me-UI-Mods/blob/master/ITRPuimods.user.js).
 
 ## Features
+All the features can be turned on and off via the settings menu.
+
+![](Settings.PNG)
 
 ### Waiting-For
 When your 4me inbox contains many entries it can be difficult to identify those you want to focus on next. Requests that are **Waiting for Customer** or **Waiting for...** a date usually are less urgent. Therefore we change their font color to grey so the other Records stick out better.
@@ -38,6 +41,14 @@ The script changes the background of internal comments so it's more visible if i
 | Normal and internal comments without the mod | With mod enabled |
 |---|---|
 | ![](InternalCommentsDefault.PNG) | ![](InternalCommentsModded.PNG) |
+
+
+### Hide Internal Comments
+In some cases - e.g. when sharing your screen with a customer - you may want to hide internal comments. The script makes this possible.
+
+| Internal comments without the mod | With the setting 'Hide Internal Comments' enabled |
+|---|---|
+| ![](InternalCommentsVisible.PNG) | ![](InternalCommentsHidden.PNG) |
 
 ### Resize Handles
 Most people use large screens nowadays; 4me limits the reading area for notes to just over 500 pixels. 
