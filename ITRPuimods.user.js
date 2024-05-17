@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.17
+// @version      0.18
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome. Use at your own risk.
 // @author       Thomas Volpini
 //
@@ -38,140 +38,103 @@
 
   // Add custom CSS styles for the GUI overlay
   GM_addStyle(`
-          /* Add your custom styles here */
-          .gui-overlay {
-              position: fixed;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-              background-color: rgba(0, 0, 0, 0.5);
-              z-index: 9999;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-          }
-          .gui-content {
-              background-color: #fff;
-              padding: 20px;
-              border-radius: 5px;
-              box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-          }
-          .close-btn, .save-btn {
-          cursor: pointer;
-          color: #007BFF;
-          text-decoration: underline;
-          vertical-align: middle; /* Align buttons vertically */
-          display: inline-block; /* Set display to inline-block */
-      }
-      .save-btn {
-          cursor: pointer;
-          color: #007BFF;
-          text-decoration: underline;
-          float: right; /* Keep the Save button on the right */
-      }
-          /* Styles for the switches */
-          .switch-container {
-              display: grid;
-              grid-template-columns: 1fr auto; /* Adjust the width of the switches */
-              align-items: center;
-              gap: 10px; /* Adjust the gap between switches */
-              margin-bottom: 10px;
-          }
-          .switch {
-              display: flex;
-              align-items: center;
-          }
-          .switch input {
-              opacity: 0;
-              width: 0;
-              height: 0;
-          }
-          .slider {
-              width: 40px; /* Adjust the width of the switches */
-              height: 20px; /* Adjust the height as needed */
-              border-radius: 20px; /* Adjust the radius to make it half of the height */
-              background-color: #ccc;
-              position: relative;
-              transition: background-color 0.4s;
-          }
-          .slider:before {
-              content: '';
-              position: absolute;
-              left: 2px;
-              top: 2px;
-              width: 16px; /* Adjust the width to make it slightly smaller than the switch */
-              height: 16px; /* Adjust the height to make it slightly smaller than the switch */
-              border-radius: 50%;
-              background-color: #fff;
-              transition: transform 0.4s;
-          }
-          input:checked + .slider {
-              background-color: #007BFF;
-          }
-          input:checked + .slider:before {
-              transform: translateX(20px); /* Adjust the translation to align the circle properly */
-          }
-      `);
+    .gui-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .gui-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+    .close-btn, .save-btn {
+        cursor: pointer;
+        color: #007BFF;
+        text-decoration: underline;
+        vertical-align: middle; /* Align buttons vertically */
+        display: inline-block; /* Set display to inline-block */
+    }
+    .save-btn {
+        float: right; /* Keep the Save button on the right */
+    }
+    /* Styles for the switches */
+    .switch-container {
+        display: grid;
+        grid-template-columns: 1fr auto; /* Adjust the width of the switches */
+        align-items: center;
+        gap: 10px; /* Adjust the gap between switches */
+        margin-bottom: 10px;
+    }
+    .switch {
+        display: flex;
+        align-items: center;
+    }
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .slider {
+        width: 40px; /* Adjust the width of the switches */
+        height: 20px; /* Adjust the height as needed */
+        border-radius: 20px; /* Adjust the radius to make it half of the height */
+        background-color: #ccc;
+        position: relative;
+        transition: background-color 0.4s;
+    }
+    .slider:before {
+        content: '';
+        position: absolute;
+        left: 2px;
+        top: 2px;
+        width: 16px; /* Adjust the width to make it slightly smaller than the switch */
+        height: 16px; /* Adjust the height to make it slightly smaller than the switch */
+        border-radius: 50%;
+        background-color: #fff;
+        transition: transform 0.4s;
+    }
+    input:checked + .slider {
+        background-color: #007BFF;
+    }
+    input:checked + .slider:before {
+        transform: translateX(20px); /* Adjust the translation to align the circle properly */
+    }
+  `);
 
-  // Configuration settings for various features. Retrieved using GM_getValue.
-  // Defaults are provided in case the settings are not defined yet.
-  let config_DetailsAreaChanges = GM_getValue(
-    "config_DetailsAreaChanges",
-    true
-  );
+  // Configuration settings for various features
+  const configuration = {
+    // Should not be changed
+    // config_DetailsAreaChanges: GM_getValue("config_DetailsAreaChanges", true),
 
-  let config_GrayOutWaitingRecords = GM_getValue(
-    "config_GrayOutWaitingRecords",
-    true
-  );
+    config_GrayOutWaitingRecords: GM_getValue("config_GrayOutWaitingRecords", true),
 
-  let config_BoldCurrentUserAssignments = GM_getValue(
-    "config_BoldCurrentUserAssignments",
-    true
-  );
+    // Currently broken
+    // config_BoldCurrentUserAssignments: GM_getValue("config_BoldCurrentUserAssignments", true),
 
-  let config_HighlightTopImpactIncidents = GM_getValue(
-    "config_HighlightTopImpactIncidents",
-    true
-  );
+    // Currently broken
+    // config_HighlightTopImpactIncidents: GM_getValue("config_HighlightTopImpactIncidents", true),
 
-  let config_ReduceWhitespaceInTables = GM_getValue(
-    "config_ReduceWhitespaceInTables",
-    true
-  );
+    config_ReduceWhitespaceInTables: GM_getValue("config_ReduceWhitespaceInTables", true),
 
-  let config_HighlightRecordIdentifiers = GM_getValue(
-    "config_HighlightRecordIdentifiers",
-    false
-  );
+    // Not so useful
+    // config_HighlightRecordIdentifiers: GM_getValue("config_HighlightRecordIdentifiers", false),
 
-  let config_GrayBackgroundForInternalComments = GM_getValue(
-    "config_GrayBackgroundForInternalComments",
-    true
-  );
-
-  let config_HideInternalComments = GM_getValue(
-    "config_HideInternalComments",
-    false
-  );
-
-  let config_ResizeHandlesForCodeBoxes = GM_getValue(
-    "config_ResizeHandlesForCodeBoxes",
-    true
-  );
-
-  let config_OpenLinksInSameTab = GM_getValue(
-    "config_OpenLinksInSameTab",
-    false
-  );
-
-  let config_Hotkeys = GM_getValue("config_Hotkeys", true);
-
-  let config_SelfServiceEnhancements = GM_getValue(
-    "config_SelfServiceEnhancements",
-    true
-  );
+    config_GrayBackgroundForInternalComments: GM_getValue("config_GrayBackgroundForInternalComments", true),
+    config_HideInternalComments: GM_getValue("config_HideInternalComments", false),
+    config_ResizeHandlesForCodeBoxes: GM_getValue("config_ResizeHandlesForCodeBoxes", true),
+    config_OpenLinksInSameTab: GM_getValue("config_OpenLinksInSameTab", false),
+    config_Hotkeys: GM_getValue("config_Hotkeys", true),
+    config_SelfServiceEnhancements: GM_getValue("config_SelfServiceEnhancements", true),
+  };
 
   // Create and show the GUI overlay
   function showGUI() {
@@ -182,278 +145,37 @@
     content.classList.add("gui-content");
 
     content.innerHTML = `
-            <h2>4me GUI MOD Settings:</h2>
-
-            <div class="switch-container">
-                <span>Details Area Changes: </span>
-                <label class="switch">
-                    <input type="checkbox" id="config_DetailsAreaChanges">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="switch-container">
-                <span>Gray Out Waiting Records:</span>
-                <label class="switch">
-                    <input type="checkbox" id="config_GrayOutWaitingRecords">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="switch-container">
-                <span>Bold Current User Assignments:</span>
-                <label class="switch">
-                    <input type="checkbox" id="config_BoldCurrentUserAssignments">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="switch-container">
-                <span>Highlight Top Impact Incidents:</span>
-                <label class="switch">
-                    <input type="checkbox" id="config_HighlightTopImpactIncidents">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="switch-container">
-                <span>Reduce Whitespace in Tables:</span>
-                <label class="switch">
-                    <input type="checkbox" id="config_ReduceWhitespaceInTables">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="switch-container">
-                <span>Highlight Record Identifiers:</span>
-                <label class="switch">
-                    <input type="checkbox" id="config_HighlightRecordIdentifiers">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="switch-container">
-                <span>Gray Background for Internal Comments:</span>
-                <label class="switch">
-                    <input type="checkbox" id="config_GrayBackgroundForInternalComments">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="switch-container">
-                <span>Hide Internal Comments:</span>
-                <label class="switch">
-                    <input type="checkbox" id="config_HideInternalComments">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="switch-container">
-                <span>Resize Handles for Code Boxes:</span>
-                <label class="switch">
-                    <input type="checkbox" id="config_ResizeHandlesForCodeBoxes">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="switch-container">
-                <span>Open Links in Same Tab:</span>
-                <label class="switch">
-                    <input type="checkbox" id="config_OpenLinksInSameTab">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="switch-container">
-                <span>Hotkeys:</span>
-                <label class="switch">
-                    <input type="checkbox" id="config_Hotkeys">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="switch-container">
-                <span>Self-Service Enhancements:</span>
-                <label class="switch">
-                    <input type="checkbox" id="config_SelfServiceEnhancements">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="close-btn">Close</div>
-            <div class="save-btn">Save</div>
-        `;
+      <h2>4me GUI Mod Settings</h2>
+      ${Object.keys(configuration).map(configKey => `
+        <div class="switch-container">
+          <span>${configKey.replace(/^config_/, '')}</span>
+          <label class="switch">
+            <input type="checkbox" id="${configKey}">
+            <span class="slider"></span>
+          </label>
+        </div>
+      `).join('')}
+      <div class="close-btn">Close</div>
+      <div class="save-btn">Save</div>
+    `;
 
     guiOverlay.appendChild(content);
     document.body.appendChild(guiOverlay);
 
-    // Event listeners and actions for GUI elements related to configuration settings ( if true, then switch on => achieved with <Element>.checked )
-    // Details Area Changes
-    const detailsAreaChangesElement = document.getElementById(
-      "config_DetailsAreaChanges"
-    );
-    detailsAreaChangesElement.checked = config_DetailsAreaChanges;
-    detailsAreaChangesElement.addEventListener("change", function () {
-      console.log("DetailsAreaChanges");
-      GM_setValue("config_DetailsAreaChanges", !config_DetailsAreaChanges);
-    });
-
-    // Gray Out Waiting Records
-    const grayOutWaitingRecordsElement = document.getElementById(
-      "config_GrayOutWaitingRecords"
-    );
-    grayOutWaitingRecordsElement.checked = config_GrayOutWaitingRecords;
-    grayOutWaitingRecordsElement.addEventListener("change", function () {
-      console.log("GrayOutGrayOutWaitingRecordsWaitingRecords");
-      GM_setValue(
-        "config_GrayOutWaitingRecords",
-        !config_GrayOutWaitingRecords
-      );
-    });
-
-    // Bold Current User Assignments
-    const boldCurrentUserAssignmentsElement = document.getElementById(
-      "config_BoldCurrentUserAssignments"
-    );
-    boldCurrentUserAssignmentsElement.checked =
-      config_BoldCurrentUserAssignments;
-    boldCurrentUserAssignmentsElement.addEventListener("change", function () {
-      console.log("BoldCurrentUserAssignments");
-      GM_setValue(
-        "config_BoldCurrentUserAssignments",
-        !config_BoldCurrentUserAssignments
-      );
-    });
-
-    // Highlight Top Impact Incidents
-    const highlightTopImpactIncidentsElement = document.getElementById(
-      "config_HighlightTopImpactIncidents"
-    );
-    highlightTopImpactIncidentsElement.checked =
-      config_HighlightTopImpactIncidents;
-    highlightTopImpactIncidentsElement.addEventListener("change", function () {
-      console.log("highlightTopImpactIncidents");
-      GM_setValue(
-        "config_HighlightTopImpactIncidents",
-        !config_HighlightTopImpactIncidents
-      );
-    });
-
-    // Reduce Whitespace in Tables
-    const reduceWhitespaceInTablesElement = document.getElementById(
-      "config_ReduceWhitespaceInTables"
-    );
-    reduceWhitespaceInTablesElement.checked = config_ReduceWhitespaceInTables;
-    reduceWhitespaceInTablesElement.addEventListener("change", function () {
-      console.log("reduceWhitespaceInTables");
-      GM_setValue(
-        "config_ReduceWhitespaceInTables",
-        !config_ReduceWhitespaceInTables
-      );
-    });
-
-    // Highlight Record Identifiers
-    const highlightRecordIdentifiersElement = document.getElementById(
-      "config_HighlightRecordIdentifiers"
-    );
-    highlightRecordIdentifiersElement.checked =
-      config_HighlightRecordIdentifiers;
-    highlightRecordIdentifiersElement.addEventListener("change", function () {
-      console.log("highlightrecordidentifiers");
-      GM_setValue(
-        "config_HighlightRecordIdentifiers",
-        !config_HighlightRecordIdentifiers
-      );
-    });
-
-    // Gray Background for Internal Comments
-    const grayBackgroundForInternalCommentsElement = document.getElementById(
-      "config_GrayBackgroundForInternalComments"
-    );
-    grayBackgroundForInternalCommentsElement.checked =
-      config_GrayBackgroundForInternalComments;
-    grayBackgroundForInternalCommentsElement.addEventListener(
-      "change",
-      function () {
-        console.log("graybackgroundforinternalcomments");
-        GM_setValue(
-          "config_GrayBackgroundForInternalComments",
-          !config_GrayBackgroundForInternalComments
-        );
-      }
-    );
-
-    // Gray Background for Internal Comments
-    const hideInternalCommentsElement = document.getElementById(
-      "config_HideInternalComments"
-    );
-    hideInternalCommentsElement.checked =
-      config_HideInternalComments;
-    hideInternalCommentsElement.addEventListener(
-      "change",
-      function () {
-        console.log("hideinternalcomments");
-        GM_setValue(
-          "config_HideInternalComments",
-          !config_HideInternalComments
-        );
-      }
-    );
-
-    // Resize Handles for Code Boxes
-    const resizeHandlesForCodeBoxesElement = document.getElementById(
-      "config_ResizeHandlesForCodeBoxes"
-    );
-    resizeHandlesForCodeBoxesElement.checked = config_ResizeHandlesForCodeBoxes;
-    resizeHandlesForCodeBoxesElement.addEventListener("change", function () {
-      console.log("resizehandlesforcodeboxeselement");
-      GM_setValue(
-        "config_ResizeHandlesForCodeBoxes",
-        !config_ResizeHandlesForCodeBoxes
-      );
-    });
-
-    // Open Links in Same Tab
-    const openLinksInSameTabElement = document.getElementById(
-      "config_OpenLinksInSameTab"
-    );
-    openLinksInSameTabElement.checked = config_OpenLinksInSameTab;
-    openLinksInSameTabElement.addEventListener("change", function () {
-      console.log("openLinksinSameTab");
-      GM_setValue("config_OpenLinksInSameTab", !config_OpenLinksInSameTab);
-    });
-
-    // Hotkeys
-    const hotkeysElement = document.getElementById("config_Hotkeys");
-    hotkeysElement.checked = config_Hotkeys;
-    hotkeysElement.addEventListener("change", function () {
-      console.log("hotkeys");
-      GM_setValue("config_Hotkeys", !config_Hotkeys);
-    });
-
-    // Self Service Enhancements
-    const selfServiceEnhancements = document.getElementById(
-      "config_SelfServiceEnhancements"
-    );
-    selfServiceEnhancements.checked = config_SelfServiceEnhancements;
-    selfServiceEnhancements.addEventListener("change", function () {
-      console.log("selfServiceEnhancements");
-      GM_setValue(
-        "config_SelfServiceEnhancements",
-        !config_SelfServiceEnhancements
-      );
+    // Initialize the checkboxes based on the current configuration
+    Object.keys(configuration).forEach(configKey => {
+      const element = document.getElementById(configKey);
+      element.checked = configuration[configKey];
+      element.addEventListener("change", () => {
+        configuration[configKey] = !configuration[configKey];
+        GM_setValue(configKey, configuration[configKey]);
+        console.log("Changed " + configKey + " " + configuration[configKey])
+      });
     });
 
     // Event listeners for close and save buttons within the GUI overlay.
-    const closeButton = content.querySelector(".close-btn");
-    closeButton.addEventListener("click", function () {
-      closeGUI();
-    });
-
-    const saveButton = content.querySelector(".save-btn");
-    saveButton.addEventListener("click", function () {
-      location.reload(true);
-    });
+    content.querySelector(".close-btn").addEventListener("click", closeGUI);
+    content.querySelector(".save-btn").addEventListener("click", () => location.reload(true));
   }
 
   // Function to close the GUI overlay
@@ -464,9 +186,7 @@
   }
 
   // Register custom menu command to open GUI
-  GM_registerMenuCommand("Open Settings", function () {
-    showGUI();
-  });
+  GM_registerMenuCommand("Open Settings", showGUI);
 
   // #######################################################################################
   const jQuery = window.jQuery; // Prevent warning by Tampermonkey editor.
@@ -477,7 +197,7 @@
   let call_upon_details_change = [];
 
   // Upon changes in the Detail area, call every function in the call_upon_details_change array.
-  if (config_DetailsAreaChanges) {
+  if (configuration.config_DetailsAreaChanges) {
     console.log("DetailsAreaChanges-Feature enabled!");
     // Handle changes in details area
     const targetNode = document.getElementById("details_area");
@@ -501,10 +221,11 @@
     }
   }
 
-  if (config_BoldCurrentUserAssignments) {
+  if (configuration.config_BoldCurrentUserAssignments) {
+    // Currently broken.
     console.log("BoldCurrentUserAssignments-Feature enabled!");
     // Print lines bold where the current user is the assignee
-    let currentUser = jQuery("div.avatar").attr("alt");
+    let currentUser = jQuery("img.avatar").attr("alt");
     jQuery("td.cell-assignment:contains('" + currentUser + "')")
       .closest("tr")
       .find("td")
@@ -512,7 +233,8 @@
   }
 
   // Highlight lines containing Top impact incidents
-  if (config_HighlightTopImpactIncidents) {
+  if (configuration.config_HighlightTopImpactIncidents) {
+    // Currently broken
     console.log("HighlightTopImpactIncidents-Feature enabled!");
     jQuery("div.grid-row")
       .has("div.icon-impact-top")
@@ -520,14 +242,14 @@
   }
 
   // The new 4me UI has lots of whitespace in tables. Reduce this by 30%
-  if (config_ReduceWhitespaceInTables) {
+  if (configuration.config_ReduceWhitespaceInTables) {
     console.log("ReduceWhitespaceInTables-Feature enabled!");
     jQuery(".grid-container").css("--cell-height", "25px");
   }
 
   // Highlight all Record Identifiers contained in a list.
   // TODO Currently we don't differentiate problems, requests and tasks here. Fix this.
-  if (config_HighlightRecordIdentifiers) {
+  if (configuration.config_HighlightRecordIdentifiers) {
     console.log("HighlightRecordIdentifiers-Feature enabled!");
 
     let highlightRecords = [1159, 1193, 173002, 179426];
@@ -540,7 +262,7 @@
 
   // Gray background for internal comments.
   // This makes it easier to see if a record didn't get a customer-visible comment for some time.
-  if (config_GrayBackgroundForInternalComments) {
+  if (configuration.config_GrayBackgroundForInternalComments) {
     console.log("GrayBackgroundForInternalComments-Feature enabled!");
 
     function FormatInternalComments() {
@@ -568,7 +290,7 @@
   }
 
 
-  if (config_HideInternalComments) {
+  if (configuration.config_HideInternalComments) {
     console.log("HideinternalComments-Feature enabled!");
 
     function HideInternalComments() {
@@ -586,7 +308,7 @@
 
 
   // Add resize handles to code boxes
-  if (config_ResizeHandlesForCodeBoxes) {
+  if (configuration.config_ResizeHandlesForCodeBoxes) {
     console.log("ResizeHandlesForCodeBoxes-Feature enabled!");
 
     function AddCodeResizeHandles() {
@@ -603,7 +325,7 @@
   }
 
   // Open links in same tab instead of new one.
-  if (config_OpenLinksInSameTab) {
+  if (configuration.config_OpenLinksInSameTab) {
     console.log("OpenLinksInSameTab-Feature enabled!");
 
     function RemoveTargetBlank() {
@@ -615,7 +337,7 @@
     RemoveTargetBlank();
   }
 
-  if (config_Hotkeys) {
+  if (configuration.config_Hotkeys) {
       console.log("Hotkeys-Feature enabled!");
 
       function inputFocused() {
@@ -675,7 +397,7 @@
   }
 
   // Self Service
-  if (config_SelfServiceEnhancements) {
+  if (configuration.config_SelfServiceEnhancements) {
     console.log("SelfServiceEnhancements-Feature enabled!");
 
     // Opening multiple Requests is currently difficult in Self Service because Requests
@@ -698,7 +420,7 @@
     });
   }
 
-  if (config_GrayOutWaitingRecords) {
+  if (configuration.config_GrayOutWaitingRecords) {
     console.log("GrayOutWaitingRecords-Feature enabled!");
 
     // Gray-out lines containing "Waiting..." Records.
