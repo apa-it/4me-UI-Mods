@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.18
+// @version      0.19
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome. Use at your own risk.
 // @author       Thomas Volpini
 //
@@ -112,8 +112,7 @@
 
   // Configuration settings for various features
   const configuration = {
-    // Should not be changed
-    // config_DetailsAreaChanges: GM_getValue("config_DetailsAreaChanges", true),
+    config_DetailsAreaChanges: GM_getValue("config_DetailsAreaChanges", true),
 
     config_GrayOutWaitingRecords: GM_getValue("config_GrayOutWaitingRecords", true),
 
