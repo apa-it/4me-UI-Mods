@@ -29,7 +29,7 @@ Some UI buttons have been mapped to keys.
 |e|Edit Record|
 |g|Scroll to the bottom of the current Record|
 |t|Scroll to the top of the current Record|
-|Esc|Cancel Editing|
+|Esc|Cancel Editing, or Save by pressing Enter in the "Save changes" dialog that appears.|
 
 ### Internal Comments
 Internal comments are great for adding information to requests that should not be visible to customers - like technical details.
