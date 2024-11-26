@@ -14,6 +14,14 @@ All the features can be turned on and off via the settings menu.
 
 ![](Settings.PNG)
 
+### Reduce Whitespace in Tables
+You can reduce vertical whitespace in tables so more records are displayed.
+
+|Default|Reduced Whitespace|
+|---|---|
+| ![](WhitespaceDefault.png) | ![](WhitespaceReduced.png) |
+
+
 ### Waiting-For
 When your 4me inbox contains many entries it can be difficult to identify those you want to focus on next. Requests that are **Waiting for Customer** or **Waiting for...** a date usually are less urgent. Therefore we change their font color to grey so the other Records stick out better.
 
