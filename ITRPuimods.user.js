@@ -1,25 +1,16 @@
 // ==UserScript==
 // @name         ITRPuimods
-// @version      0.19
+// @version      0.21
 // @description  Tampermonkey script. Modifications for the 4me/ITRP user interface. Works in Firefox and Chrome. Use at your own risk.
 // @author       Thomas Volpini
 //
 // @updateURL    https://github.com/apa-it/4me-UI-Mods/raw/master/ITRPuimods.user.js
 // @downloadURL  https://github.com/apa-it/4me-UI-Mods/raw/master/ITRPuimods.user.js
 //
-// @match   https://*.itrp.at/*
-// @match   https://*.itrp.at/*
+// @match   https://*.xurrent.com/*
 //
-// @match   https://*.itrp-qa.at/*
-// @match   https://*.itrp-qa.at/*
+// @match   https://*.xurrent.qa/*
 //
-// @match   https://*.itrp.com/*
-// @match   https://*.itrp.com/*
-//
-// @match   https://*.4me.com/*
-// @match   https://*.4me.com/*
-//
-// @match   https://*.4me-demo.com/*
 // @match   https://*.4me-demo.com/*
 //
 // @grant        GM_addStyle
@@ -27,7 +18,7 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 //
-// @require https://code.jquery.com/jquery-3.6.4.min.js
+// @require https://code.jquery.com/jquery-3.7.1.min.js
 //
 // ==/UserScript==
 
@@ -122,12 +113,11 @@
     // Currently broken
     // config_HighlightTopImpactIncidents: GM_getValue("config_HighlightTopImpactIncidents", true),
 
-    config_ReduceWhitespaceInTables: GM_getValue("config_ReduceWhitespaceInTables", true),
+    config_ReduceWhitespaceInTables: GM_getValue("config_ReduceWhitespaceInTables", false),
 
     // Not so useful
     // config_HighlightRecordIdentifiers: GM_getValue("config_HighlightRecordIdentifiers", false),
 
-    config_GrayBackgroundForInternalComments: GM_getValue("config_GrayBackgroundForInternalComments", true),
     config_HideInternalComments: GM_getValue("config_HideInternalComments", false),
     config_ResizeHandlesForCodeBoxes: GM_getValue("config_ResizeHandlesForCodeBoxes", true),
     config_OpenLinksInSameTab: GM_getValue("config_OpenLinksInSameTab", false),
@@ -243,7 +233,19 @@
   // The new 4me UI has lots of whitespace in tables. Reduce this by 30%
   if (configuration.config_ReduceWhitespaceInTables) {
     console.log("ReduceWhitespaceInTables-Feature enabled!");
-    jQuery(".grid-container").css("--cell-height", "25px");
+    jQuery(".grid-container").css("--cell-height", "20px");
+    // Force row height with !important - using cssText to override application CSS
+    jQuery(".grid-row").each(function() {
+      this.style.cssText += "min-height: 20px !important; max-height: 20px !important; height: 20px !important; line-height: 1.2 !important;";
+    });
+    // Also reduce padding and line-height on individual cells
+    jQuery(".grid-row .cell").each(function() {
+      this.style.cssText += "padding-top: 0px !important; padding-bottom: 0px !important; line-height: 1.2 !important;";
+    });
+    // Reduce line-height on cell content (spans, etc.)
+    jQuery(".grid-row .cell span").each(function() {
+      this.style.cssText += "line-height: 1.2 !important;";
+    });
   }
 
   // Highlight all Record Identifiers contained in a list.
@@ -259,43 +261,16 @@
       .css("color", "green");
   }
 
-  // Gray background for internal comments.
-  // This makes it easier to see if a record didn't get a customer-visible comment for some time.
-  if (configuration.config_GrayBackgroundForInternalComments) {
-    console.log("GrayBackgroundForInternalComments-Feature enabled!");
-
-    function FormatInternalComments() {
-      // Adding and checking apaIt_InternalComment is to prevent loops.
-      jQuery("div.icon-locked")
-        .closest("li")
-        .find("div.note-content")
-        .not(".apaIt_InternalComment")
-        .addClass("apaIt_InternalComment")
-        .css({
-          "background-color": "LightGray",
-          color: "black",
-          "border-bottom-left-radius": "5px",
-          "border-bottom-right-radius": "5px",
-          "border-top-left-radius": "5px",
-          "border-top-right-radius": "5px",
-        });
-    }
-
-    call_upon_details_change.push(FormatInternalComments);
-
-    // Once upon load.
-    // This call is for internal comments that are immediately visible after the DOM is loaded.
-    FormatInternalComments();
-  }
-
-
   if (configuration.config_HideInternalComments) {
-    console.log("HideinternalComments-Feature enabled!");
+    console.log("HideInternalComments-Feature enabled!");
 
     function HideInternalComments() {
-      jQuery("div.icon-locked")
+      // Hide internal comments by finding notes with "internal" class and hiding the parent list item
+      jQuery("div.note.internal")
         .closest("li")
-        .text("(Internal note)")
+        .not(".apaIt_HiddenInternalComment")
+        .addClass("apaIt_HiddenInternalComment")
+        .hide();
     }
 
     call_upon_details_change.push(HideInternalComments);
@@ -364,17 +339,21 @@
 
           if (event.key === "e") {
               if (jQuery(".modal_panel").length > 0) return; // Don't click the edit button when modal panels are visible.
-              jQuery("span.icon-edit").click();
+              // Try both the button and the icon selector for compatibility
+              let editButton = jQuery("button#toolbar_edit_single_resource, i.icon-edit").first();
+              if (editButton.length) {
+                  editButton.click();
+              }
           }
 
           // When the 'g' key is pressed, click the 'Down' button to scroll to the bottom of the Request.
           else if (event.key === "g") {
-              jQuery("i.scroll-button-down").click();
+              jQuery("i.scroll-button-down, i.icon-single-chevron-down").first().click();
           }
 
           // When the 't' key is pressed, click the 'Up' button to scroll to the top of the Request.
           else if (event.key === "t") {
-              jQuery("i.scroll-button-up").click();
+              jQuery("i.scroll-button-up, i.icon-single-chevron-up").first().click();
           }
       });
 
@@ -389,7 +368,8 @@
                       .find("#save_changes_cancel")
                       .click(); // Click the 'cancel' button in the 'your changes will be lost' popup.
               } else {
-                  jQuery("div.btn.cancel").click(); // Cancel editing.
+                  // Click the cancel button (works for note editing and other forms)
+                  jQuery("button#cancel").click();
               }
           }
       });
@@ -429,8 +409,9 @@
         let reg_w =
           /Waiting|Warten|Wachtend|En Attente|Esperando|Aguardando|Aspettando/;
         let reg_wfy = /Waiting for You/;
-        return (
-          reg_w.test(jQuery(this).text()) && !reg_wfy.test(jQuery(this).text())
+        let cellText = jQuery(this).find("div.cell-status").text();
+				return (
+          reg_w.test(cellText) && !reg_wfy.test(cellText)
         );
       })
       .css("color", "Gainsboro");
